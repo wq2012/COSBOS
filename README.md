@@ -1,5 +1,7 @@
 # COSBOS: COlor-Sensor-Based Occupancy Sensing
 
+![logo](resources/logo.png)
+
 ## Overview
 
 This is the software package for using color sensors and perturbation-modulated light (color-controllable fixtures required) to estimate the occupancy distribution in an indoor space. It corresponds to these papers:
