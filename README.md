@@ -53,10 +53,12 @@ packages. Thus we are not including the code for data collection here.
 
 ## Copyright
 
+```
 Copyright (C) 2014 Quan Wang <wangq10@rpi.edu>,
 Signal Analysis and Machine Perception Laboratory,
 Department of Electrical, Computer, and Systems Engineering,
 Rensselaer Polytechnic Institute, Troy, NY 12180, USA
+```
 
 You are free to use this software, but we would appreciate it if you can
 cite our papers.
