@@ -1,4 +1,4 @@
-# COSBOS: COlor-Sensor-Based Occupancy Sensing
+# COSBOS: COlor-Sensor-Based Occupancy Sensing [![View COSBOS: COlor-Sensor-Based Occupancy Sensing on File Exchange](https://www.mathworks.com/matlabcentral/images/matlab-file-exchange.svg)](https://www.mathworks.com/matlabcentral/fileexchange/48428-cosbos-color-sensor-based-occupancy-sensing)
 
 ![logo](resources/logo.png)
 
