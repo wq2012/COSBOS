@@ -1,0 +1,34 @@
+
+# This workflow will install Octave and run unit tests and the demos
+
+name: Octave application
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y octave octave-dev
+    - name: Run LTM demo
+      run: |
+        cd LTM_Recovery
+        octave --no-gui demo_LTM.m
+    - name: Run blockage model demo
+      run: |
+        cd BlockageModel
+        octave --no-gui demo_Blockage.m
+    - name: Run reflection model demo
+      run: |
+        cd ReflectionModel
+        octave --no-gui demo_Reflection.m
