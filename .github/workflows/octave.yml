@@ -20,6 +20,9 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install -y octave octave-dev
+    - name: Run unit tests
+      run: |
+        octave --no-gui --eval "addpath('tests'); run_tests;"
     - name: Run LTM demo
       run: |
         cd LTM_Recovery

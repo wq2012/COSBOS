@@ -1,4 +1,7 @@
-# COSBOS: COlor-Sensor-Based Occupancy Sensing [![View COSBOS: COlor-Sensor-Based Occupancy Sensing on File Exchange](https://www.mathworks.com/matlabcentral/images/matlab-file-exchange.svg)](https://www.mathworks.com/matlabcentral/fileexchange/48428-cosbos-color-sensor-based-occupancy-sensing)
+# COSBOS: COlor-Sensor-Based Occupancy Sensing
+
+[![View COSBOS: COlor-Sensor-Based Occupancy Sensing on File Exchange](https://www.mathworks.com/matlabcentral/images/matlab-file-exchange.svg)](https://www.mathworks.com/matlabcentral/fileexchange/48428-cosbos-color-sensor-based-occupancy-sensing)
+[![Octave application](https://github.com/wq2012/COSBOS/actions/workflows/octave.yml/badge.svg)](https://github.com/wq2012/COSBOS/actions/workflows/octave.yml)
 
 ![logo](resources/logo.png)
 
