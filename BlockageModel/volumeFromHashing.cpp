@@ -30,7 +30,7 @@ using namespace std;
 
 
 
-void generateVolume(double *V, int *dim, double *H, double *E, int ns, int nl)
+void generateVolume(double *V, mwSize *dim, double *H, double *E, int ns, int nl)
 {
     double **L=new double *[ns]; // aggregation of E
     long i,j; // important, must be long
@@ -78,7 +78,7 @@ void generateVolume(double *V, int *dim, double *H, double *E, int ns, int nl)
     }
     
     // free
-    for(i=0;i<11;i++)
+    for(i=0;i<ns;i++)
     {
         delete[] L[i];
     }
@@ -95,7 +95,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
     double *lights;
     int ns; // number of sensors, 12
     int nl; // number of lights, 12
-    int *dim;
+    mwSize *dim;
     double *dim2;
     double *H;
     double *E;
@@ -121,10 +121,10 @@ void mexFunction( int nlhs, mxArray *plhs[],
     
     /*  create a pointer to the input matrix dim */
     dim2 = mxGetPr(prhs[2]);
-    dim = new int[3];
-    dim[0]=(int)dim2[0];
-    dim[1]=(int)dim2[1];
-    dim[2]=(int)dim2[2];
+    dim = new mwSize[3];
+    dim[0]=(mwSize)dim2[0];
+    dim[1]=(mwSize)dim2[1];
+    dim[2]=(mwSize)dim2[2];
     
     /*  create a pointer to the input matrix A */
     H = mxGetPr(prhs[3]);
