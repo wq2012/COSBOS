@@ -6,18 +6,22 @@
  */
 
 /** 
- * This is the C++/MEX code for hasing Gaussians and distances
+ * HASHGAUSSIANS: C++/MEX code for hashing Gaussians and distances.
  *
- * compile: 
+ * This function calculates distances from every pixel in a 3D volume to the
+ * line segments connecting sensor-light pairs, and computes a Gaussian 
+ * distribution based on these distances.
+ *
+ * Compilation: 
  *     mex hashGaussians.cpp
  *
- * usage:
- *     H=hashGaussians(sensors,lights,dim,sigma)
- *         sensors: 3D spatial coordinates of sensors
- *         lights: 3D spatial coordinates of lights
- *         dim: 3D dimension of the room
- *         sigma: the standard deviation of the Gaussian kernel
- *         H: the data to be hashed
+ * Usage:
+ *     H = hashGaussians(sensors, lights, dim, sigma)
+ *         sensors: 3D spatial coordinates of sensors [N x 3]
+ *         lights:  3D spatial coordinates of lights [M x 3]
+ *         dim:     3D dimension of the room [1 x 3]
+ *         sigma:   Standard deviation of the Gaussian kernel (scalar)
+ *         H:       The hashed Gaussian data [prod(dim)*N*M x 1]
  */
 
 #include "mex.h"
@@ -25,163 +29,122 @@
 #include <cstdio>
 #include <cmath>
 #include <iostream>
+#include <vector>
 
 using namespace std;
 
-/* return two numbers, d and on
- * d is distance
- * on is an indicator for whether projection is on line segment
+/**
+ * Calculates distance from point (x,y,z) to line segment (x1,y1,z1)-(x2,y2,z2).
+ * Returns the distance and a flag indicating if the projection is on the segment.
  */
-double *pointToLineDistance(double x, double y, double z, double x1, double y1, double z1, double x2, double y2, double z2)
-{
-    double *result=new double[2];
+struct DistResult {
+    double d;
+    bool onSegment;
+};
+
+inline DistResult pointToLineDistance(double x, double y, double z, 
+                                     double x1, double y1, double z1, 
+                                     double x2, double y2, double z2) {
+    double x3 = x2 - x1;
+    double y3 = y2 - y1;
+    double z3 = z2 - z1;
+    double segmentLenSq = x3*x3 + y3*y3 + z3*z3;
     
-    double x3=x2-x1;
-    double y3=y2-y1;
-    double z3=z2-z1;
-    
-    double alpha = ( x3*(x-x1) + y3*(y-y1) + z3*(z-z1) ) / ( x3*x3 + y3*y3 + z3*z3 );
+    if (segmentLenSq == 0) return {sqrt((x-x1)*(x-x1) + (y-y1)*(y-y1) + (z-z1)*(z-z1)), true};
+
+    double alpha = (x3*(x - x1) + y3*(y - y1) + z3*(z - z1)) / segmentLenSq;
     
     double xv = x1 - x + alpha * x3;
     double yv = y1 - y + alpha * y3;
     double zv = z1 - z + alpha * z3;
     
-    result[0]=sqrt(xv*xv+yv*yv+zv*zv);
-    
-    if(0<=alpha && alpha<=1)
-    {
-        result[1]=1;
-    }
-    else
-    {
-        result[1]=0;
-    }
+    DistResult res;
+    res.d = sqrt(xv*xv + yv*yv + zv*zv);
+    res.onSegment = (alpha >= 0.0 && alpha <= 1.0);
         
-    return result;
+    return res;
 }
 
+/**
+ * Main computation loop to generate the Gaussian volume.
+ * Optimized to avoid heap allocations in inner loops.
+ */
+void generateGaussian(double *H, double *sensors, double *lights, int *dim, double sigma, int ns, int nl) {
+    long dimProd = (long)dim[0] * dim[1] * dim[2];
+    double invTwoSigmaSq = 1.0 / (2.0 * sigma * sigma);
 
+    cout << "Rendering volume H (" << ns << " sensors, " << nl << " lights) ..." << endl;
+    
+    // Pre-extract coordinates to avoid repeated indexing
+    vector<double> sx(ns), sy(ns), sz(ns);
+    vector<double> lx(nl), ly(nl), lz(nl);
+    for (int s = 0; s < ns; ++s) {
+        sx[s] = sensors[s];
+        sy[s] = sensors[s + ns];
+        sz[s] = sensors[s + ns * 2];
+    }
+    for (int l = 0; l < nl; ++l) {
+        lx[l] = lights[l];
+        ly[l] = lights[l + nl];
+        lz[l] = lights[l + nl * 2];
+    }
 
-
-void generateGaussian(double *H, double *sensors, double *lights, int *dim, double sigma, int ns, int nl)
-{
-    long i,j; // important, must be long
-    long a; // a is a copy of i
-    int x,y,z; // positions in V
-    double x1,y1,z1; // sensor position
-    double x2,y2,z2; // light position
-    int sc,lc,s,l; // sensor/light channel, and sensor/light
-    double *result; // the result of calling pointToLineDistance() 
-    double d; // distance from point to line
-    int on; // whether point projection is on line (1/0)
-    double gaussian;
-
-    cout<<"Rendering volume H ..."<<endl;
-    for(i=0;i<dim[0]*dim[1]*dim[2];i++)
-    {
-        a=i;
-        x=a%dim[0];
-        a/=dim[0];
-        y=a%dim[1];
-        z=a/dim[1];
+    for (long i = 0; i < dimProd; i++) {
+        long a = i;
+        int x = a % dim[0];
+        a /= dim[0];
+        int y = a % dim[1];
+        int z = a / dim[1];
         
-        for(j=0;j<ns*nl;j++)
-        {
-            s=j%ns;
-            l=j/ns;
+        for (int j = 0; j < ns * nl; j++) {
+            int s = j % ns;
+            int l = j / ns;
             
-            x1=sensors[s];
-            y1=sensors[s+ns];
-            z1=sensors[s+ns*2];
-            x2=lights[l];
-            y2=lights[l+nl];
-            z2=lights[l+nl*2];
+            DistResult res = pointToLineDistance((double)x, (double)y, (double)z, 
+                                                sx[s], sy[s], sz[s], 
+                                                lx[l], ly[l], lz[l]);
             
-            result=pointToLineDistance((double)x, (double)y, (double)z, x1, y1, z1, x2, y2, z2);
-            d=result[0];
-            on=(int)result[1];
-            
-            gaussian=exp(-d*d/2/sigma/sigma);
-            H[i+dim[0]*dim[1]*dim[2]*j]=gaussian;
-
-            // free result; 
-            delete[] result;
+            H[i + dimProd * j] = exp(-res.d * res.d * invTwoSigmaSq);
         }
     }
 }
 
-
-
-/* the gateway function */
-void mexFunction( int nlhs, mxArray *plhs[],
-        int nrhs, const mxArray *prhs[])
-{
-    double *sensors;
-    double *lights;
-    int ns; // number of sensors, 12
-    int nl; // number of lights, 12
-    int *dim;
-    double *dim2;
-    double sigma;
-    double *H;
-    
-    /*  check for proper number of arguments */
-    if(nrhs!=4)
-    {
-        mexErrMsgIdAndTxt( "MATLAB:volumevolumeHashing:invalidNumInputs",
-                "Four inputs required.");
+/* MEX gateway function */
+void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
+    /* Check for proper number of arguments */
+    if (nrhs != 4) {
+        mexErrMsgIdAndTxt("MATLAB:hashGaussians:invalidNumInputs", "Four inputs required.");
     }
-    if(nlhs>1)
-    {
-        mexErrMsgIdAndTxt( "MATLAB:volumeHashing:invalidNumOutputs",
-                "One output required.");
+    if (nlhs > 1) {
+        mexErrMsgIdAndTxt("MATLAB:hashGaussians:invalidNumOutputs", "One output required.");
     }
     
-    /* check to make sure sigma is a scalar */
-    if( !mxIsDouble(prhs[3]) || mxIsComplex(prhs[3]) ||
-            mxGetN(prhs[3])*mxGetM(prhs[3])!=1 )
-    {
-        mexErrMsgIdAndTxt( "MATLAB:volumeHashing:sigmaNotScalar",
-                "Input sigma must be a scalar.");
+    /* Check sigma input */
+    if (!mxIsDouble(prhs[3]) || mxIsComplex(prhs[3]) || mxGetNumberOfElements(prhs[3]) != 1) {
+        mexErrMsgIdAndTxt("MATLAB:hashGaussians:sigmaNotScalar", "Input sigma must be a scalar double.");
     }
     
-    /*  get the scalar input sigma */
-    sigma = (int) mxGetScalar(prhs[3]);
+    double sigma = mxGetScalar(prhs[3]);
+    double *sensors = mxGetPr(prhs[0]);
+    double *lights = mxGetPr(prhs[1]);
+    double *dimInput = mxGetPr(prhs[2]);
     
-
-    /*  create a pointer to the input matrix sensors */
-    sensors = mxGetPr(prhs[0]);
+    int dim[3];
+    dim[0] = (int)dimInput[0];
+    dim[1] = (int)dimInput[1];
+    dim[2] = (int)dimInput[2];
     
-    /*  create a pointer to the input matrix lights */
-    lights = mxGetPr(prhs[1]);
-    
-    /*  create a pointer to the input matrix dim */
-    dim2 = mxGetPr(prhs[2]);
-    dim = new int[3];
-    dim[0]=(int)dim2[0];
-    dim[1]=(int)dim2[1];
-    dim[2]=(int)dim2[2];
-    
-    
-    
-    /*  get the number of sensors */
-    ns = (int) mxGetM(prhs[0]);
-    cout<<"Number of sensors: "<<ns<<endl;
-    
-    /*  get the number of lights */
-    nl = (int) mxGetM(prhs[1]);
-    cout<<"Number of lights: "<<nl<<endl;
+    int ns = (int)mxGetM(prhs[0]);
+    int nl = (int)mxGetM(prhs[1]);
             
-    /*  set the output pointer to the output matrix */
-    plhs[0] = mxCreateNumericMatrix((long)dim[0]*dim[1]*dim[2]*ns*nl, 1, 
-         mxDOUBLE_CLASS, mxREAL);
+    /* Create output matrix */
+    mwSize outDims[2];
+    outDims[0] = (mwSize)dim[0] * dim[1] * dim[2] * ns * nl;
+    outDims[1] = 1;
+    plhs[0] = mxCreateNumericArray(2, outDims, mxDOUBLE_CLASS, mxREAL);
     
-    /*  create a C++ pointer to a copy of the output matrix */
-    H = mxGetPr(plhs[0]);
+    double *H = mxGetPr(plhs[0]);
     
-    /*  call the C subroutine */
-    generateGaussian(H,sensors,lights,dim,sigma,ns,nl);
-    
-    return;
-    
+    /* Call calculation routine */
+    generateGaussian(H, sensors, lights, dim, sigma, ns, nl);
 }

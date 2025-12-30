@@ -25,8 +25,8 @@ function test_BlockageModel()
 
     %% Test coordinates
     fprintf('Testing coordinates script...\n');
-    % coordinates is a script, so it puts variables in workspace
-    coordinates; 
+    % coordinates_blockage is a script, so it puts variables in workspace
+    coordinates_blockage; 
     assert(exist('sensors','var') && exist('lights','var') && exist('dim','var'), 'coordinates script did not create variables');
     assert(size(sensors, 2) == 3, 'sensors should be Nx3');
     assert(length(dim) == 3, 'dim should be length 3 vector');

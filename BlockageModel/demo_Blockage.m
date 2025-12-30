@@ -3,44 +3,63 @@
 % Department of Electrical, Computer, and Systems Engineering, 
 % Rensselaer Polytechnic Institute, Troy, NY 12180, USA
 
-%% This is the demo for the light blockage model with wall-mounted sensors
+%% Demonstration of Light Blockage Model
+% This script demonstrates occupancy sensing with wall-mounted sensors.
 
-clear;clc;close all;
+clear; clc; close all;
 
-compile; % compile the two cpp files (you need MATLAB compiler)
-addpath('../LTM_Recovery');
+% Find module directory and add LTM_Recovery to path
+moduleDir = fileparts(mfilename('fullpath'));
+rootDir = fileparts(moduleDir);
+addpath(fullfile(rootDir, 'LTM_Recovery'));
 
-%% get A0
-load 'Data/0_30876.mat';
-X=bsxfun(@minus,TestLight(2:end,:),TestLight(1,:));
-Y=bsxfun(@minus,cdata(2:end,:),cdata(1,:));
-X=X';
-Y=Y';
-A0=solve_A_fullrank(X,Y);
+% Step 1: Compile the C++/MEX files (if not already compiled)
+compile; 
 
-%% get A
-load 'Data/U_85164.mat';
-X=bsxfun(@minus,TestLight(2:end,:),TestLight(1,:));
-Y=bsxfun(@minus,cdata(2:end,:),cdata(1,:));
-X=X';
-Y=Y';
-A=solve_A_fullrank(X,Y);
+%% Step 2: Recover Baseline Light Transport Matrix (A0)
+dataDir = fullfile(moduleDir, 'Data');
+load(fullfile(dataDir, '0_30876.mat'));
+X = bsxfun(@minus, TestLight(2:end, :), TestLight(1, :));
+Y = bsxfun(@minus, cdata(2:end, :), cdata(1, :));
+X = X';
+Y = Y';
+A0 = solve_A_fullrank(X, Y);
 
-%% get volume
-E=A0-A;
-E(E<0)=0;
-sigma=20;
-coordinates;
-H=hashGaussians(sensors,lights,dim,sigma); % once computed, H can be used many times
-V=volumeFromHashing(sensors,lights,dim,H,E);
-V=V(:,end:-1:1,:); % to be consistent with occupancy scenarios in the papers
+%% Step 3: Recover Current Light Transport Matrix (A) with Occupancy
+load(fullfile(dataDir, 'U_85164.mat'));
+X = bsxfun(@minus, TestLight(2:end, :), TestLight(1, :));
+Y = bsxfun(@minus, cdata(2:end, :), cdata(1, :));
+X = X';
+Y = Y';
+A = solve_A_fullrank(X, Y);
 
-%% visualize the floor-plane occupancy
-FloorPlane=sum(V,3);
+%% Step 4: Render Room Occupancy Volume
+% Calculate the difference matrix E
+E = A0 - A;
+E(E < 0) = 0;
+
+% Parameters for the blockage model
+sigma = 20;
+coordinates_blockage; % Load spatial coordinates and room dimensions (sensors, lights, dim)
+
+% Compute Gaussian hashing (line-to-pixel distances)
+H = hashGaussians(sensors, lights, dim, sigma); 
+
+% Render the final 3D volume
+V = volumeFromHashing(sensors, lights, dim, H, E);
+
+% Mirror the y-axis to be consistent with paper coordinate conventions
+V = V(:, end:-1:1, :); 
+
+%% Step 5: Visualization and Output
+% Visualize floor-plane occupancy (sum along z-axis)
+FloorPlane = sum(V, 3);
+figure;
 imagesc(FloorPlane);
 axis equal off;
-title('floor-plane occupancy');
+colormap('hot');
+colorbar;
+title('Floor-Plane Occupancy (Blockage Model)');
 
-%% save result to TIFF 3D image (can be viewed with Amira, ImageJ, etc.)
-writeTiff(V,'V.tif');
-
+% Save result to a 3D TIFF image
+writeTiff(V, 'V.tif');

@@ -3,15 +3,21 @@
 % Department of Electrical, Computer, and Systems Engineering, 
 % Rensselaer Polytechnic Institute, Troy, NY 12180, USA
 
-function K=getReflectionKernel(light,sensor,dim,para)
-%% Compute the reflection kernel for one fixture-sensor pair
-%    light: 3D spatial coordinates of the light (the fixture)
-%    sensor: 3D spatial coordinates of the sensor
-%    dim: 3D dimension of the room
-%    para: parameter of the model
-%      0: non-Lambertian
-%      1: Lambertian
-%    K: the resulting reflection kernel
+function K = getReflectionKernel(light, sensor, dim, para)
+% GETREFLECTIONKERNEL Compute the reflection kernel for one sensor-fixture pair.
+%
+%   K = GETREFLECTIONKERNEL(light, sensor, dim, para) calculates the 
+%   predicted light reflection on the floor plane based on the fixture 
+%   and sensor positions.
+%
+%   Input:
+%       light:   3D spatial coordinates of the light fixture [1x3].
+%       sensor:  3D spatial coordinates of the sensor [1x3].
+%       dim:     3D dimension of the room [1x3].
+%       para:    Reflection model parameter (0: non-Lambertian, 1: Lambertian).
+%
+%   Output:
+%       K: The resulting reflection kernel (2D matrix of size dim(1)xdim(2)).
 
 % Extract scalar coordinates for readability and speed
 lx=light(1);

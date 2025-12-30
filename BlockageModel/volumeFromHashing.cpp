@@ -6,18 +6,18 @@
  */
 
 /** 
- * This is the C++/MEX code for rendering the volume from hashed Gaussians
+ * VOLUMEFROMHASHING: C++/MEX code for rendering volume from hashed Gaussians.
  *
- * compile: 
+ * Compilation: 
  *     mex volumeFromHashing.cpp
  *
- * usage:
- *     V=volumeFromHashing(sensors,lights,dim,H,E)
- *         sensors: 3D spatial coordinates of sensors
- *         lights: 3D spatial coordinates of lights
- *         dim: 3D dimension of the room
- *         H: the data that has been hashed
- *         E: the difference matrix, E=A0-A 
+ * Usage:
+ *     V = volumeFromHashing(sensors, lights, dim, H, E)
+ *         sensors: 3D spatial coordinates of sensors [N x 3]
+ *         lights:  3D spatial coordinates of lights [M x 3]
+ *         dim:     3D dimension of the room [1 x 3]
+ *         H:       Hashed Gaussian data
+ *         E:       Difference matrix, E = A0 - A 
  */
 
 #include "mex.h"
@@ -25,129 +25,72 @@
 #include <cstdio>
 #include <cmath>
 #include <iostream>
+#include <vector>
 
 using namespace std;
 
-
-
-void generateVolume(double *V, mwSize *dim, double *H, double *E, int ns, int nl)
-{
-    double **L=new double *[ns]; // aggregation of E
-    long i,j; // important, must be long
-    int sc,lc,s,l; // sensor/light channel, and sensor/light
-    double normalizor,gaussian;
-    long dimProd=(long)dim[0]*dim[1]*dim[2];
+/**
+ * Main computation loop to render the volume V.
+ * Optimized with flat array for L and improved memory management.
+ */
+void generateVolume(double *V, const mwSize *dim, double *H, double *E, int ns, int nl) {
+    // Aggregation of E into matrix L
+    // We use a flat vector instead of double** for better cache locality
+    vector<double> L(ns * nl, 0.0);
     
-    for(i=0;i<ns;i++)
-    {
-        L[i]=new double[nl];
-        for(j=0;j<nl;j++)
-        {
-            L[i][j]=0;
-        }
-    }
-    
-    cout<<"Constructing matrix L ..."<<endl;
-    for(i=0;i<4*ns*3*nl;i++)
-    {
-        sc=i%(4*ns);
-        lc=(i-sc)/(4*ns);
-        s=sc/4;
-        l=lc/3;
-        if(sc%4 == lc%3)
-        {
-            L[s][l]=L[s][l]+E[i];
+    cout << "Constructing matrix L ..." << endl;
+    for (long i = 0; i < 4 * ns * 3 * nl; i++) {
+        int sc = i % (4 * ns);
+        int lc = (i - sc) / (4 * ns);
+        int s = sc / 4;
+        int l = lc / 3;
+        if (sc % 4 == lc % 3) {
+            L[s + l * ns] += E[i];
         }
     }
 
-    cout<<"Rendering volume V ..."<<endl;
-    for(i=0;i<dimProd;i++)
-    {
-        normalizor=0;
-        V[i]=0;
-        for(j=0;j<ns*nl;j++)
-        {
-            s=j%ns;
-            l=j/ns;
-            
-            gaussian=H[i+dimProd*j];
-            V[i]+=L[s][l]*gaussian;
-            normalizor+=gaussian;
+    long dimProd = (long)dim[0] * dim[1] * dim[2];
+    cout << "Rendering volume V ..." << endl;
+    for (long i = 0; i < dimProd; i++) {
+        double normalizor = 0;
+        V[i] = 0;
+        for (int j = 0; j < ns * nl; j++) {
+            double gaussian = H[i + dimProd * j];
+            V[i] += L[j] * gaussian;
+            normalizor += gaussian;
         }
-        V[i]/=normalizor;
+        if (normalizor > 0) {
+            V[i] /= normalizor;
+        }
     }
-    
-    // free
-    for(i=0;i<ns;i++)
-    {
-        delete[] L[i];
-    }
-    delete[] L;
 }
 
-
-
-/* the gateway function */
-void mexFunction( int nlhs, mxArray *plhs[],
-        int nrhs, const mxArray *prhs[])
-{
-    double *sensors;
-    double *lights;
-    int ns; // number of sensors, 12
-    int nl; // number of lights, 12
-    mwSize *dim;
-    double *dim2;
-    double *H;
-    double *E;
-    double *V;
-    
-    /*  check for proper number of arguments */
-    if(nrhs!=5)
-    {
-        mexErrMsgIdAndTxt( "MATLAB:volumeFromHashing:invalidNumInputs",
-                "Five inputs required.");
+/* MEX gateway function */
+void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
+    /* Check for proper number of arguments */
+    if (nrhs != 5) {
+        mexErrMsgIdAndTxt("MATLAB:volumeFromHashing:invalidNumInputs", "Five inputs required.");
     }
-    if(nlhs>1)
-    {
-        mexErrMsgIdAndTxt( "MATLAB:volumeFromHashing:invalidNumOutputs",
-                "One output required.");
+    if (nlhs > 1) {
+        mexErrMsgIdAndTxt("MATLAB:volumeFromHashing:invalidNumOutputs", "One output required.");
     }
 
-    /*  create a pointer to the input matrix sensors */
-    sensors = mxGetPr(prhs[0]);
+    double *dimInput = mxGetPr(prhs[2]);
+    mwSize dim[3];
+    dim[0] = (mwSize)dimInput[0];
+    dim[1] = (mwSize)dimInput[1];
+    dim[2] = (mwSize)dimInput[2];
     
-    /*  create a pointer to the input matrix lights */
-    lights = mxGetPr(prhs[1]);
+    double *H = mxGetPr(prhs[3]);
+    double *E = mxGetPr(prhs[4]);
     
-    /*  create a pointer to the input matrix dim */
-    dim2 = mxGetPr(prhs[2]);
-    dim = new mwSize[3];
-    dim[0]=(mwSize)dim2[0];
-    dim[1]=(mwSize)dim2[1];
-    dim[2]=(mwSize)dim2[2];
+    int ns = (int)mxGetM(prhs[0]);
+    int nl = (int)mxGetM(prhs[1]);
     
-    /*  create a pointer to the input matrix A */
-    H = mxGetPr(prhs[3]);
-    E = mxGetPr(prhs[4]);
+    /* Set the output pointer to the output matrix */
+    plhs[0] = mxCreateNumericArray(3, dim, mxDOUBLE_CLASS, mxREAL);
+    double *V = mxGetPr(plhs[0]);
     
-    /*  get the number of sensors */
-    ns = (int) mxGetM(prhs[0]);
-    cout<<"Number of sensors: "<<ns<<endl;
-    
-    /*  get the number of lights */
-    nl = (int) mxGetM(prhs[1]);
-    cout<<"Number of lights: "<<nl<<endl;
-    
-    /*  set the output pointer to the output matrix */
-    plhs[0] = mxCreateNumericArray(3, dim, 
-         mxDOUBLE_CLASS, mxREAL);
-    
-    /*  create a C++ pointer to a copy of the output matrix */
-    V = mxGetPr(plhs[0]);
-    
-    /*  call the C subroutine */
-    generateVolume(V,dim,H,E,ns,nl);
-    
-    return;
-    
+    /* Call calculation routine */
+    generateVolume(V, dim, H, E, ns, nl);
 }
