@@ -25,9 +25,22 @@ COSBOS is a high-performance MATLAB/Octave toolbox for occupancy sensing using c
 
 ## Project Overview
 Color sensors can be used as low-cost, privacy-preserving alternatives to cameras for occupancy sensing. By measuring changes in the Light Transport Matrix (LTM) of a room, we can infer the presence and location of occupants. COSBOS provides the tools to:
-1. Recover the LTM from sensor measurements.
-2. Model occupancy using light blockage (for wall-mounted sensors).
-3. Model occupancy using light reflection (for ceiling-mounted sensors).
+1. Recover the LTM from sensor measurements, both overdetermined and underdetermined. This work
+is described in [2].
+2. Model occupancy using light blockage (for wall-mounted sensors). This work is
+described in [1] and [3].
+3. Model occupancy using light reflection (for ceiling-mounted sensors). This work is described in [1].
+
+More information:
+* [4] is not directly related to this package. It is about the new color
+sensors that we have built for occupancy sensing.
+* In each demo, we included example data. But the code for data collection
+has too many dependencies: platform, hardware, driver, and other software
+packages. Thus we are not including the code for data collection here.
+* More information on this work can be found here:
+  * https://sites.google.com/site/cosboswiki/
+* This library is also available at MathWorks:
+  * https://www.mathworks.com/matlabcentral/fileexchange/48428-cosbos-color-sensor-based-occupancy-sensing
 
 ## Installation and Setup
 1. Clone the repository: `git clone https://github.com/wq2012/COSBOS.git`
@@ -79,14 +92,12 @@ This verifies LTM recovery accuracy, MEX script correctness, and model performan
 ## Citation
 If you use this work in your research, please cite:
 ```bibtex
-@article{wang2014cosbos,
-  title={COSBOS: COlor-sensor-based occupancy sensing},
-  author={Wang, Quan and Kim, Jaeseok and Shao, Richard and Ji, Qiang and Hella, Karl R},
-  journal={Journal of Solid State Lighting},
-  volume={1},
-  number={1},
-  pages={1--16},
-  year={2014},
-  publisher={SpringerOpen}
-}
+[1] Quan Wang, Xinchi Zhang, Kim L. Boyer, "Occupancy distribution estimation for smart light delivery with perturbation-modulated light sensing", Journal of Solid State Lighting 2014 1:17, ISSN 2196-1107,
+doi:10.1186/s40539-014-0017-2.
+
+[2] Quan Wang, Xinchi Zhang, Meng Wang, Kim L. Boyer, "Learning Room Occupancy Patterns from Sparsely Recovered Light Transport Models", 22nd International Conference on Pattern Recognition (ICPR), 2014.
+
+[3] Quan Wang, Xinchi Zhang, Kim L. Boyer, "3D Scene Estimation with Perturbation-Modulated Light and Distributed Sensors", 10th IEEE Workshop on Perception Beyond the Visible Spectrum (PBVS).
+
+[4] Xinchi Zhang, Quan Wang, Kim L. Boyer, "Illumination Adaptation with Rapid-Response Color Sensors", SPIE Optical Engineering + Applications, 2014.
 ```
