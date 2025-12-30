@@ -107,7 +107,7 @@ while ~done
     end
     resnorm = norm(res);
 
-    if ((resnorm <= OptTol*normy) | ((lambdaStop > 0) & (maxcorr <= lambdaStop)))
+    if ((resnorm <= OptTol*normy) || ((lambdaStop > 0) && (maxcorr <= lambdaStop)))
         done = 1;
     end
 
@@ -120,7 +120,7 @@ while ~done
         done = 1;
     end
 
-    if done | ((solFreq > 0) & (~mod(k,solFreq)))
+    if done || ((solFreq > 0) && (~mod(k,solFreq)))
         sols = [sols x];
     end
 end

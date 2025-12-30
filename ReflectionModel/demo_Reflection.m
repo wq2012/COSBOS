@@ -28,7 +28,7 @@ A=solve_A_fullrank(X,Y);
 %% generate all kernels
 coordinates;
 para=1;
-K=generateAllKernels(lights,sensors,dim,para); % slow, better store K in a mat file
+K=generateAllKernels(lights,sensors,dim,para);
 
 %% get floor-plane occupancy map
 E=A0-A;

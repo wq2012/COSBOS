@@ -6,7 +6,8 @@
 function A=solve_A_1norm(X,Y)
 %% solve Y=AX for A, while minimizing L1-norm of vec(A) 
 
-addpath('Lib/l1magic/Optimization');
+thisDir = fileparts(mfilename('fullpath'));
+addpath(fullfile(thisDir, 'Lib/l1magic/Optimization'));
 
 m1=size(X,1);
 m2=size(Y,1);

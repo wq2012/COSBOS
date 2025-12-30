@@ -1,7 +1,7 @@
 function run_tests()
     % Master test runner script
     
-    addpath('tests');
+    addpath(fullfile(pwd, 'tests'));
     
     tests_to_run = {
         @test_BlockageModel,

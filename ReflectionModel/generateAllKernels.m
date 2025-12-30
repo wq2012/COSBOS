@@ -11,8 +11,6 @@ function K=generateAllKernels(lights,sensors,dim,para)
 %    para: parameter of the model
 %      0: non-Lambertian
 %      1: Lambertian
-%  Note: this function is very slow, thus we suggest you store the results
-%  in a mat file
 
 K=cell(size(sensors,1),size(lights,1));
 

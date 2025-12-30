@@ -6,7 +6,8 @@
 function A=solve_A_0norm(X,Y)
 %% solve Y=AX for A, while minimizing L0-norm of vec(A)
 
-addpath('Lib/SparseLab2.1-Core/Solvers');
+thisDir = fileparts(mfilename('fullpath'));
+addpath(fullfile(thisDir, 'Lib/SparseLab2.1-Core/Solvers'));
 
 m1=size(X,1);
 m2=size(Y,1);
