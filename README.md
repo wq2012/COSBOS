@@ -91,13 +91,68 @@ This verifies LTM recovery accuracy, MEX script correctness, and model performan
 
 ## Citation
 If you use this work in your research, please cite:
-```bibtex
-[1] Quan Wang, Xinchi Zhang, Kim L. Boyer, "Occupancy distribution estimation for smart light delivery with perturbation-modulated light sensing", Journal of Solid State Lighting 2014 1:17, ISSN 2196-1107,
+
+**Plain Text**:
+
+> [1] Quan Wang, Xinchi Zhang, Kim L. Boyer, "Occupancy distribution estimation for smart light delivery with perturbation-modulated light sensing", Journal of Solid State Lighting 2014 1:17, ISSN 2196-1107,
 doi:10.1186/s40539-014-0017-2.
 
-[2] Quan Wang, Xinchi Zhang, Meng Wang, Kim L. Boyer, "Learning Room Occupancy Patterns from Sparsely Recovered Light Transport Models", 22nd International Conference on Pattern Recognition (ICPR), 2014.
+> [2] Quan Wang, Xinchi Zhang, Meng Wang, Kim L. Boyer, "Learning Room Occupancy Patterns from Sparsely Recovered Light Transport Models", 22nd International Conference on Pattern Recognition (ICPR), 2014.
 
-[3] Quan Wang, Xinchi Zhang, Kim L. Boyer, "3D Scene Estimation with Perturbation-Modulated Light and Distributed Sensors", 10th IEEE Workshop on Perception Beyond the Visible Spectrum (PBVS).
+> [3] Quan Wang, Xinchi Zhang, Kim L. Boyer, "3D Scene Estimation with Perturbation-Modulated Light and Distributed Sensors", 10th IEEE Workshop on Perception Beyond the Visible Spectrum (PBVS).
 
-[4] Xinchi Zhang, Quan Wang, Kim L. Boyer, "Illumination Adaptation with Rapid-Response Color Sensors", SPIE Optical Engineering + Applications, 2014.
+> [4] Xinchi Zhang, Quan Wang, Kim L. Boyer, "Illumination Adaptation with Rapid-Response Color Sensors", SPIE Optical Engineering + Applications, 2014.
+
+> [5] Quan Wang.
+Exploiting Geometric and Spatial Constraints for Vision and Lighting Applications.
+Ph.D. dissertation, Rensselaer Polytechnic Institute, 2014.
+
+
+**BibTeX:**
+
+```
+@article{wang2014occupancy,
+  title={Occupancy distribution estimation for smart light delivery with perturbation-modulated light sensing},
+  author={Wang, Quan and Zhang, Xinchi and Boyer, Kim L},
+  journal={Journal of solid state lighting},
+  volume={1},
+  number={1},
+  pages={17},
+  year={2014},
+  publisher={Springer}
+}
+
+@inproceedings{wang2014learning,
+  title={Learning room occupancy patterns from sparsely recovered light transport models},
+  author={Wang, Quan and Zhang, Xinchi and Wang, Meng and Boyer, Kim L},
+  booktitle={2014 22nd International Conference on Pattern Recognition},
+  pages={1987--1992},
+  year={2014},
+  organization={IEEE}
+}
+
+@inproceedings{wang20143d,
+  title={3d scene estimation with perturbation-modulated light and distributed sensors},
+  author={Wang, Quan and Zhang, Xinchi and Boyer, Kim L},
+  booktitle={Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition Workshops},
+  pages={252--257},
+  year={2014}
+}
+
+@inproceedings{zhang2014illumination,
+  title={Illumination adaptation with rapid-response color sensors},
+  author={Zhang, Xinchi and Wang, Quan and Boyer, Kim L},
+  booktitle={Optics and Photonics for Information Processing VIII},
+  volume={9216},
+  pages={49--60},
+  year={2014},
+  organization={SPIE}
+}
+
+@phdthesis{wang2014exploiting,
+  title={Exploiting Geometric and Spatial Constraints for Vision and Lighting Applications},
+  author={Quan Wang},
+  year={2014},
+  school={Rensselaer Polytechnic Institute},
+}
 ```
