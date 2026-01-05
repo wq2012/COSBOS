@@ -3,6 +3,9 @@
 [![View COSBOS: COlor-Sensor-Based Occupancy Sensing on File Exchange](https://www.mathworks.com/matlabcentral/images/matlab-file-exchange.svg)](https://www.mathworks.com/matlabcentral/fileexchange/48428-cosbos-color-sensor-based-occupancy-sensing)
 [![Octave application](https://github.com/wq2012/COSBOS/actions/workflows/octave.yml/badge.svg)](https://github.com/wq2012/COSBOS/actions/workflows/octave.yml)
 [![Python CI](https://github.com/wq2012/COSBOS/actions/workflows/python.yml/badge.svg)](https://github.com/wq2012/COSBOS/actions/workflows/python.yml)
+[![PyPI Version](https://img.shields.io/pypi/v/cosbos.svg)](https://pypi.python.org/pypi/cosbos)
+[![Python Versions](https://img.shields.io/pypi/pyversions/cosbos.svg)](https://pypi.org/project/cosbos)
+[![Downloads](https://static.pepy.tech/badge/cosbos)](https://pepy.tech/project/cosbos)
 
 ![logo](resources/logo.png)
 
@@ -20,6 +23,10 @@ COSBOS is a high-performance MATLAB/Octave toolbox for occupancy sensing using c
   - [Reflection Model](#reflection-model)
 - [Running Demos](#running-demos)
 - [Unit Testing](#unit-testing)
+- [Python Package](#python-package)
+  - [Installation](#installation)
+  - [Usage](#usage)
+  - [Development](#development)
 - [Citation](#citation)
 
 ---
