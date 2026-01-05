@@ -2,6 +2,7 @@
 
 [![View COSBOS: COlor-Sensor-Based Occupancy Sensing on File Exchange](https://www.mathworks.com/matlabcentral/images/matlab-file-exchange.svg)](https://www.mathworks.com/matlabcentral/fileexchange/48428-cosbos-color-sensor-based-occupancy-sensing)
 [![Octave application](https://github.com/wq2012/COSBOS/actions/workflows/octave.yml/badge.svg)](https://github.com/wq2012/COSBOS/actions/workflows/octave.yml)
+[![Python CI](https://github.com/wq2012/COSBOS/actions/workflows/python.yml/badge.svg)](https://github.com/wq2012/COSBOS/actions/workflows/python.yml)
 
 ![logo](resources/logo.png)
 
@@ -88,6 +89,51 @@ addpath('tests');
 run_tests;
 ```
 This verifies LTM recovery accuracy, MEX script correctness, and model performance.
+
+## Python Package
+
+COSBOS is also available as a Python package `cosbos`. It provides pure Python implementations of the core algorithms (Reflection Model, Blockage Model, LTM Recovery).
+
+### Installation
+
+```bash
+pip install cosbos
+```
+
+### Usage
+
+```python
+from cosbos import reflection, blockage, ltm
+import numpy as np
+
+# Reflection Model
+# Calculate reflection kernel for a light-sensor pair
+# light: [x, y, z], sensor: [x, y, z], dim: [dx, dy, dz]
+K = reflection.getReflectionKernel(light=[75, 22.5, 86.4], 
+                                   sensor=[66, 22, 86.4], 
+                                   dim=[87, 136, 88], 
+                                   para=1)
+
+# Blockage Model
+# Hash Gaussians for occupancy volume
+# sensors: [N, 3], lights: [M, 3]
+H = blockage.hashGaussians(sensors, lights, dim, sigma=2.0)
+# Reconstruct volume
+V = blockage.volumeFromHashing(sensors, lights, dim, H, E)
+
+# LTM Recovery
+# Recover matrix A from measurements Y and training data X
+# X: [m, N], Y: [l, N] (m: features, l: sensors, N: samples)
+A = ltm.solve_A_1norm(X, Y)
+```
+
+### Development
+To run tests locally:
+```bash
+cd python
+pip install -e .
+pytest tests/
+```
 
 ## Citation
 If you use this work in your research, please cite:
