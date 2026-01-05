@@ -10,7 +10,7 @@ def parse_requirements(filename):
 
 setup(
     name="cosbos",
-    version="1.0.0",
+    version="1.0.1",
     description="COlor-Sensor-Based Occupancy Sensing",
     long_description=open(os.path.join(os.path.abspath(os.path.dirname(__file__)), "README.md")).read(),
     long_description_content_type="text/markdown",
